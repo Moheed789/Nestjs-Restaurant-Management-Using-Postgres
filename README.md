@@ -121,12 +121,7 @@ Restaurant Entity:
 - id: number (Primary Key)
 - name: string
 - image: string
-- description: string
-- cuisine: string
-- rating: decimal(3,2)
-- address: string
-- phone: string
-- website: string
+- themes: string
 - created_at: timestamp
 - updated_at: timestamp
 ```
