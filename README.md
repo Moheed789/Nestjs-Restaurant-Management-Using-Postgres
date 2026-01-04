@@ -1,37 +1,75 @@
+# Restaurant API - NestJS with PostgreSQL
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+<p align="center">A modern restaurant discovery API built with NestJS and PostgreSQL, replacing AWS Lambda functions with a scalable server architecture.</p>
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+<p align="center">
+  <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
+  <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
+  <img src="https://img.shields.io/badge/database-PostgreSQL-blue" alt="Database" />
+  <img src="https://img.shields.io/badge/deployment-AWS%20CDK-orange" alt="Deployment" />
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+## 🚀 Features
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **NestJS Framework**: Modern, scalable Node.js server-side applications
+- **PostgreSQL Database**: Robust relational database with TypeORM
+- **Restaurant Management**: CRUD operations for restaurant data
+- **Static File Serving**: Serves the frontend HTML application
+- **Environment Configuration**: Flexible configuration management
+- **AWS CDK**: Infrastructure as Code for deployment
 
-## Project setup
+## 📡 API Endpoints
+
+### Get Index Page
+**Equivalent to previous `get-index.js` Lambda function**
+```
+GET /
+```
+Returns the static HTML file from `src/static/index.html`
+
+### Get Restaurants
+**Equivalent to previous `get-restaurants.js` Lambda function**
+```
+GET /restaurants?count=8
+```
+Returns a list of restaurants from PostgreSQL database
+
+**Query Parameters:**
+- `count` (optional): Number of restaurants to return (default: 8)
+
+## 🛠 Project setup
 
 ```bash
+# Install dependencies
 $ npm install
+
+# Setup environment variables
+$ cp .env.example .env
+# Update .env with your database credentials
 ```
 
-## Compile and run the project
+## 🗄️ Database Setup
+
+### Option 1: Using Docker (Recommended)
+```bash
+# Start PostgreSQL container
+$ docker run --name restaurant-postgres -e POSTGRES_PASSWORD=1234 -e POSTGRES_DB=restaurant_db -p 5432:5432 -d postgres:16
+```
+
+### Option 2: Free Online PostgreSQL
+See `SETUP-POSTGRES.md` for detailed instructions on setting up free PostgreSQL databases.
+
+### Seed Database
+```bash
+# Populate database with sample restaurants
+$ npm run seed
+```
+
+## 🏃‍♂️ Compile and run the project
 
 ```bash
 # development
@@ -44,7 +82,9 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## Run tests
+The application will be available at `http://localhost:3000`
+
+## 🧪 Run tests
 
 ```bash
 # unit tests
@@ -55,44 +95,90 @@ $ npm run test:e2e
 
 # test coverage
 $ npm run test:cov
+
+# test database connection
+$ npx ts-node test-db-connection.ts
 ```
 
-## Deployment
+## 🔄 Migration from Lambda Functions
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### Original Lambda Functions → NestJS
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+#### `get-index.js` → `RestaurantsController.getIndex()`
+- **Before**: Served static HTML from Lambda
+- **After**: NestJS controller serves HTML with proper content-type headers
 
+#### `get-restaurants.js` → `RestaurantsController.getRestaurants()`
+- **Before**: DynamoDB scan with AWS SDK
+- **After**: PostgreSQL query with TypeORM
+- **Database**: DynamoDB → PostgreSQL
+- **ORM**: Raw AWS SDK → TypeORM
+
+## 🗂️ Database Schema
+
+```typescript
+Restaurant Entity:
+- id: number (Primary Key)
+- name: string
+- image: string
+- description: string
+- cuisine: string
+- rating: decimal(3,2)
+- address: string
+- phone: string
+- website: string
+- created_at: timestamp
+- updated_at: timestamp
+```
+
+## 🌍 Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DB_HOST` | PostgreSQL host | `localhost` |
+| `DB_PORT` | PostgreSQL port | `5432` |
+| `DB_USERNAME` | Database username | `postgres` |
+| `DB_PASSWORD` | Database password | `password` |
+| `DB_NAME` | Database name | `restaurant_db` |
+| `PORT` | Application port | `3000` |
+| `DEFAULT_RESULTS` | Default number of restaurants | `8` |
+
+## 🚀 Deployment
+
+### AWS CDK Infrastructure
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Deploy infrastructure
+$ cd cdk
+$ npm install
+$ cdk deploy
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Manual Deployment
+```bash
+# Build the application
+$ npm run build
 
-## Resources
+# Start production server
+$ npm run start:prod
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+## 📚 Resources
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework
+- [TypeORM Documentation](https://typeorm.io/) for database operations
+- [AWS CDK Documentation](https://docs.aws.amazon.com/cdk/) for infrastructure deployment
 
-## Support
+## 🤝 Support
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+This project is built with NestJS, an MIT-licensed open source framework. 
 
-## Stay in touch
+## 📧 Stay in touch
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- **Project Author** - [Your Name]
+- **Built with** - [NestJS](https://nestjs.com/)
+- **Database** - [PostgreSQL](https://postgresql.org/)
+- **ORM** - [TypeORM](https://typeorm.io/)
 
-## License
+## 📄 License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This project is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
